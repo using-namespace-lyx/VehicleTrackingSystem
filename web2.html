@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Tracking System-ATDXT</title>
+
+  <!-- Leaflet CSS and JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: #f0f0f0; /* Set your desired background color */
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background: #333;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    #map {
+      display: none;
+      height: calc(100vh - 120px); /* Adjust the height based on your header size and map container */
+    }
+
+    #menu-button {
+      text-align: center;
+      padding: 10px;
+      background: #333;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Vehicle Tracking System - ATDXT</h1>
+  </header>
+
+  <div id="menu-button">Click to Open Map</div>
+
+  <!-- Add a div for the map -->
+  <div id="map"></div>
+
+  <script type="module">
+    // Import Leaflet separately
+    import 'https://unpkg.com/leaflet/dist/leaflet.js';
+
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+    import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-storage.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB4BUJG2t94v1ho9m8h-kDIlxvwE5Wvo2g",
+      authDomain: "atdxt3.firebaseapp.com",
+      databaseURL: "https://atdxt3-default-rtdb.firebaseio.com",
+      projectId: "atdxt3",
+      storageBucket: "atdxt3.appspot.com",
+      messagingSenderId: "721302049985",
+      appId: "1:721302049985:web:dfd2e914f6d3a62900b040"
+    };
+
+    // Initialize Firebase
+    const firebaseApp = initializeApp(firebaseConfig);
+
+    // Reference to your GeoJSON file in Firebase Storage
+    const storage = getStorage(firebaseApp);
+    const geojsonRef = ref(storage, 'gs://atdxt3.appspot.com/data1.json');
+
+    // Function to initialize the map
+    function initMap() {
+      // Create a new map centered at a specific location
+      const map = L.map('map').setView([0, 0], 2);
+
+      // Add a tile layer (e.g., OpenStreetMap)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Reference to your GeoJSON file in Firebase Storage
+      const storage = getStorage(firebaseApp);
+      const geojsonRef = ref(storage, 'gs://atdxt3.appspot.com/data1.json');
+
+      // Fetch the GeoJSON data using the URL
+      getDownloadURL(geojsonRef)
+        .then(url => fetch(url))
+        .then(response => response.text()) // Fetch the response as text
+        .then(jsonString => {
+          console.log('Fetched GeoJSON data:', jsonString);
+
+          const jsonStringArray = jsonString.split('\n').filter(line => line.trim() !== '');
+          const jsonArray = [];
+
+          // Now jsonArray contains an array of GeoJSON features
+          // Continue with processing GeoJSON features
+          jsonStringArray.forEach((jsonString, index) => {
+            try {
+              const json = JSON.parse(jsonString);
+              jsonArray.push(json);
+
+              // Initialize an array to store coordinates for LineString
+              var lineStringCoordinates = [];
+
+              jsonArray.forEach((json, index) => {
+                if (json.geometry) {
+                  const coordinates = [json.geometry.coordinates[1], json.geometry.coordinates[0]];
+
+                  if (json.geometry.type === 'Point') {
+                    // Plot Point as a marker
+                    L.marker(coordinates).addTo(map).bindPopup(`Timestamp: ${json.properties.timestamp}`);
+                    console.log(`Marker ${index + 1} added`);
+                  } else if (json.geometry.type === 'LineString') {
+                    // Add LineString coordinates to the array
+                    lineStringCoordinates.push(coordinates);
+                    console.log(`LineString point ${index + 1} added`);
+                  }
+                }
+              });
+
+              // Plot LineString if there are any coordinates
+              if (lineStringCoordinates.length > 0) {
+                // Add markers at the starting and last points of the LineString
+                L.marker(lineStringCoordinates[0]).addTo(map).bindPopup('Starting Point');
+                L.marker(lineStringCoordinates[lineStringCoordinates.length - 1]).addTo(map).bindPopup('Last Point');
+
+                var polyline = L.polyline(lineStringCoordinates, { color: 'blue' }).addTo(map);
+                map.fitBounds(polyline.getBounds());
+              }
+
+            } catch (error) {
+              console.error(`Error parsing GeoJSON at index ${index}:`, error);
+            }
+          });
+
+          console.log('Parsed GeoJSON array:', jsonArray);
+        })
+        .catch(error => console.error('Error fetching GeoJSON:', error));
+    }
+
+    // Wait for the DOM to be ready before initializing the map
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuButton = document.getElementById('menu-button');
+      const mapContainer = document.getElementById('map');
+
+      menuButton.addEventListener('click', () => {
+        menuButton.style.display = 'none';
+        mapContainer.style.display = 'block';
+        initMap();
+      });
+    });
+  </script>
+</body>
+
+</html>

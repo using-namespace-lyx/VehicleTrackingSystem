@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Tracking System - ATDXT Map</title>
+
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Arial", sans-serif;
+            background: #f8f8f8;
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background: #333;
+            color: #fff;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        #map {
+            height: calc(100vh - 120px);
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border 0.3s;
+        }
+
+        #button-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        body.dark-mode {
+            background: #333;
+            color: #fff;
+        }
+
+        #map.dark-mode {
+            filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Vehicle Tracking System - ATDXT</h1>
+    </header>
+
+    <!-- Add a div for the map -->
+    <div id="map"></div>
+
+    <!-- Add a container for the button -->
+    <div id="button-container">
+        <button id="dark-mode-button" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const map = L.map("map").setView([0, 0], 2);
+            const mapContainer = document.getElementById("map");
+
+            // Function to toggle dark mode for both the map and the website
+            function toggleDarkMode() {
+                mapContainer.classList.toggle("dark-mode");
+                document.body.classList.toggle("dark-mode");
+            }
+
+            // Expose the toggleDarkMode function globally for the onclick attribute
+            window.toggleDarkMode = toggleDarkMode;
+
+            // Add a tile layer to the map
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: "© OpenStreetMap contributors",
+            }).addTo(map);
+
+            // Get the vehicle ID from the URL
+            const params = new URLSearchParams(window.location.search);
+            const vehicleId = params.get('vehicle_id');
+
+            if (!vehicleId) {
+                console.error('Vehicle ID not provided.');
+                return;
+            }
+
+            // Fetch location data from Flask backend
+            fetch('/get_locations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'vehicle_id': vehicleId
+                })
+            })
+            .then(response => response.json())
+            .then(locations => {
+                locations.forEach(location => {
+                    const { latitude, longitude } = location;
+                    L.marker([latitude, longitude]).addTo(map);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching location data:', error);
+                alert('Error fetching location data');
+            });
+        });
+    </script>
+</body>
+
+</html>

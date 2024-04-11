@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Tracking System - ATDXT Map</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Arial", sans-serif;
+      background: url("https://images.pexels.com/photos/281260/pexels-photo-281260.jpeg?auto=compress&cs=tinysrgb&w=1600") no-repeat center center fixed;
+      background-size: cover;
+      text-align: center;
+      color: #fff;
+    }
+
+    header {
+      padding: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-right: 20px;
+    }
+
+    h1 {
+      flex-grow: 1;
+      text-align: center;
+      margin-right: 20px;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 400px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      margin-top: 20px;
+    }
+
+
+    label {
+    display: block;
+    margin-top: 10px;
+    color: #333;
+  }
+
+  input[type="text"],
+  input[type="date"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-left: 10px;
+    color: #333;
+  }
+
+
+    button {
+      background-color: #333333;
+      color: #fff;
+      padding: 10px 0;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    p {
+      margin-top: 20px;
+      color: red;
+    }
+
+    .error-message {
+      color: red;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+<!--    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxAPEA8QEBASEhUSGBcVEBEVEBYQEBARGBciFhgXGBgeHSggHiAmHhYYITElJSkrLi4wIx8zOD8tNyguLisBCgoKDg0OGxAQGy0mHSIrLi03LTcuNS0rLy0uLystLSs3LS0tKzctLS0tLSstKzUvLi41LS0rLS0tLSstLS0tK//AABEIAMgAyAMBIgACEQEDEQH/xAAcAAEAAQUBAQAAAAAAAAAAAAAABwEEBQYIAwL/xABJEAABAwICBAcMBwYFBQAAAAABAAIDBBEFBhIhMXEHIkFRYYGRExQjMkJScpKhsbPRFjM1VHN0gjRDU2LB4ZOio7LSFRclY2T/xAAZAQEAAwEBAAAAAAAAAAAAAAAAAgMEAQX/xAAmEQACAwABAwQCAwEAAAAAAAAAAQIDERIEITEFFEFRIjJSYaEz/9oADAMBAAIRAxEAPwCcUREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAUReVRUsjGlI9rBzucGj2rD1ObqJmru2kf5Wud7QLKca5S/VaVzuhD9mkZ5Fqjs+Ug8mU/oH/JesOd6N21z2ekw/0up+3t/iypdZR/JGyorCiximn1RzMcT5OlZ3qnWr9VNNdmi+M4yWp6VREXCQREQBERAEREAREQBERAEREAREQBERAW1XVxwsL5XBrRtJK0XGs8vcS2mGgP4jhd53DYOtY/N4q31Pc5gTc+AY0EsLf5ec86zeAZIAtJVaztEQPFHpHl3DVvXo11U1QU7HrfwePbf1F83XUsS8s1COGprH3AkmdynW63XsCzNLkarfreY4+guu72XHtUkwQNjaGsaGgbABogL0UZ9fPxBYidfpUPNjbZoLeD1/LUN6oyf6rxnyBOPEmjdvDm+66kRFX7677LX6Z0/wBf6RDX5bq4NboXEeczjj2ax1r1wnNNVTWGn3Ro8h50uw7QpZssJjWWaeqBJboP5JGixv0jlV0etjP8bY9jPP02db5USxjAsywVYsDoScsbjr/SeVZtRBi+Cz0UjQ6+3wcrb2J2i3MehSZl11Qadhqraf8Am0eTS6VT1NEIpTg+zNHR9VZY3XZHJIyiIiyHoBERAEREAREQBERA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" alt="Logo" class="logo">-->
+    <h1>Vehicle Tracking System</h1>
+  </header>
+
+  <div class="container">
+    <h2>Enter Vehicle Details</h2>
+    <form id="trackingForm" method="post" onsubmit="return submitForm()">
+      <label for="vehicle_input">Vehicle:</label>
+      <input type="text" id="vehicle_input" name="vehicle_name" required />
+
+      <label for="date_input">Date:</label>
+      <input type="date" id="date_input" name="date" required />
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <p id="errorMessage" class="error-message"></p>
+  </div>
+
+  <script>
+  function submitForm() {
+    // Get values from input fields
+    const vehicleId = document.getElementById('vehicle_input').value;
+    const date = document.getElementById('date_input').value;
+
+    // Reset error message
+    document.getElementById('errorMessage').innerText = '';
+
+    // Fetch location data from Flask backend
+    fetch('/get_locations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        'vehicle_id': vehicleId,
+        'date': date,
+      }),
+    })
+      .then(response => {
+        if (response.ok) {
+          // If successful, open map.html in a new tab
+          window.open(`/map?vehicle_id=${vehicleId}&date=${date}`, '_blank');
+        } else {
+          // If table does not exist, show error message
+          document.getElementById('errorMessage').innerText = 'Table does not exist.';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching location data:', error);
+        document.getElementById('errorMessage').innerText = 'Error fetching location data.';
+      });
+
+    return false; // Prevent the form from submitting
+  }
+</script>
+</body>
+</html>
